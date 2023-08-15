@@ -1,23 +1,37 @@
-import { sequelize } from "../config/database";
-import { DataTypes, Model } from 'sequelize'
-class Book extends Model{
-  static associate(models:any){
-    Book.belongsTo(models.Author,{
-      foreignKey: 'authorId',
-      as: 'author'
-    })
-  }
-}
+import { DataTypes } from 'sequelize'
+import { sequelize } from '../config/connection'
+import Author from './author'
 
-Book.init({
-  title: {
-    type: DataTypes.STRING,
-    allowNull:false
-  },
-  authorId: {
-    type: DataTypes.INTEGER,
-    allowNull: false
+const Book = sequelize.define(
+  'Book',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    authorId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    }
   }
-},{sequelize, modelName: "Book"})
+  , {
+    timestamps: true,
+    paranoid: true,
+  }
+)
 
 export default Book
+
+export interface BookInstance{
+  id: number
+  title: string
+  authorId: number
+  createdAt: Date
+  updatedAt: Date
+  deletedAt: Date | null
+}

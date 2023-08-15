@@ -1,22 +1,48 @@
-import { sequelize } from '../config/database'
-import { DataTypes, Model } from "sequelize";
-class Author extends Model {
-  static associate(models: any) {
-    Author.hasMany(models.Book, {
-      foreignKey: 'authorId',
-      as: 'books'
-    })
-  }
-}
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/connection';
+import Book from './book';
 
-Author.init({
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
+const Author = sequelize.define(
+  'Author',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    age: {
+      type: DataTypes.INTEGER,
+    },
   },
-  age: {
-    type: DataTypes.INTEGER
+  {
+    timestamps: true,
+    paranoid: true,
   }
-}, { sequelize, modelName: "Author" })
+);
 
-export default Author
+
+Author.hasMany(Book, {
+  foreignKey: 'authorId',
+  as: 'books',
+});
+
+Book.belongsTo(Author, {
+  foreignKey: 'authorId',
+  as: 'author'
+})
+
+
+export default Author;
+
+export interface AuthorInstance {
+  id: number
+  name: string
+  age: number | null
+  createdAt: Date
+  updatedAt: Date
+  deletedAt: Date | null
+}

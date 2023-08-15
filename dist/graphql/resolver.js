@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const author_1 = __importDefault(require("../models/author"));
 const book_1 = __importDefault(require("../models/book"));
+require("dotenv/config");
 exports.resolvers = {
     Query: {
         authors: async () => await author_1.default.findAll(),
@@ -23,8 +24,33 @@ exports.resolvers = {
         author: async (book) => await author_1.default.findByPk(book.authorId)
     },
     Mutation: {
+        // register: async (parent: any, { registerInput: { username, email, password, confirmPassword } }) => {
+        //   password = await bcrypt.hash(password,12)
+        //   const newUser = new User({
+        //     email,
+        //     username,
+        //     password,
+        //     createdAt: new Date().toISOString()
+        //   }) 
+        //   const res = await newUser.save()
+        //   const token = jwt.sign({
+        //     id: res.id,
+        //     email: res.email,
+        //     username: res.username
+        //   },process.env.JWT_SECRET!,{expiresIn: '1h'})
+        //   console.log(res)
+        //   return {
+        //     newUser,
+        //     token,
+        //     id:1
+        //   }
+        // },
         createAuthor: async (parent, args) => {
-            const newAuthor = new author_1.default(args);
+            const { name, age } = args;
+            const newAuthor = await author_1.default.create({
+                name,
+                age
+            });
             return await newAuthor.save();
         },
         updateAuthor: async (parent, args) => {

@@ -1,21 +1,18 @@
-import { QueryInterface, DataTypes } from 'sequelize';
-
 module.exports = {
-  async up(queryInterface: QueryInterface) {
-    await queryInterface.createTable('Books', {
+  up: async (queryInterface, DataTypes) => {
+    await queryInterface.createTable('Authors', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: DataTypes.INTEGER
       },
-      title: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false
       },
-      authorId: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+      age: {
+        type: DataTypes.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -24,10 +21,14 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE
+      },
+      deletedAt: {
+        allowNull: true,
+        type: DataTypes.DATE
       }
     });
   },
-  async down(queryInterface: QueryInterface) {
-    await queryInterface.dropTable('Books');
+  down: async (queryInterface, DataTypes) => {
+    await queryInterface.dropTable('Authors');
   }
 };
