@@ -10,10 +10,17 @@ const author_1 = __importDefault(require("../models/author"));
 const book_1 = __importDefault(require("../models/book"));
 const user_1 = __importDefault(require("../models/user"));
 const auth_validators_1 = require("../utils/validators/auth.validators");
+const checkAuth_1 = require("../utils/checkAuth");
 exports.resolvers = {
     Query: {
-        authors: async () => await author_1.default.findAll(),
-        books: async () => await book_1.default.findAll()
+        authors: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
+            return await author_1.default.findAll();
+        },
+        books: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
+            return await book_1.default.findAll();
+        },
     },
     Author: {
         books: async (author) => {
@@ -76,7 +83,8 @@ exports.resolvers = {
                 throw new Error('Could not register user');
             }
         },
-        createAuthor: async (parent, args) => {
+        createAuthor: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
             const { name, age } = args;
             const newAuthor = await author_1.default.create({
                 name,
@@ -84,7 +92,8 @@ exports.resolvers = {
             });
             return await newAuthor.save();
         },
-        updateAuthor: async (parent, args) => {
+        updateAuthor: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
             const { id, name, age } = args;
             await author_1.default.update({ name, age }, { where: { id } });
             const updatedAuthor = await author_1.default.findByPk(id);
@@ -92,7 +101,8 @@ exports.resolvers = {
                 throw new Error(`No author with id: ${args.id}`);
             return updatedAuthor;
         },
-        deleteAuthor: async (parent, args) => {
+        deleteAuthor: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
             const deletedAuthor = await author_1.default.findByPk(args.id);
             if (!deletedAuthor)
                 throw new Error(`No author with id: ${args.id}`);
@@ -108,7 +118,8 @@ exports.resolvers = {
             });
             return deletedAuthor;
         },
-        createBook: async (parent, args) => {
+        createBook: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
             const { authorId, title } = args;
             const newBook = await book_1.default.create({
                 authorId,
@@ -116,12 +127,14 @@ exports.resolvers = {
             });
             return newBook;
         },
-        updateBook: async (parent, args) => {
+        updateBook: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
             const { id, title } = args;
             await book_1.default.update({ title }, { where: { id } });
             return await book_1.default.findByPk(id);
         },
-        deleteBook: async (parent, args) => {
+        deleteBook: async (parent, args, context) => {
+            (0, checkAuth_1.checkAuth)(context);
             const deletedBook = await book_1.default.findByPk(args.id);
             if (!deletedBook)
                 throw new Error(`No Book with id: ${args.id}`);

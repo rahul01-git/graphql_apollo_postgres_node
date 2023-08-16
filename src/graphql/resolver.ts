@@ -5,13 +5,22 @@ import Author, { AuthorInstance } from "../models/author"
 import Book, { BookInstance } from "../models/book"
 import User, { UserInstance } from '../models/user'
 import { validateRegisterInput, validateLoginInput } from '../utils/validators/auth.validators'
-
+import { checkAuth } from '../utils/checkAuth'
 
 export const resolvers = {
   Query: {
-    authors: async () => await Author.findAll(),
+    authors: async (parent:any,args:any,context:any) =>{
+      checkAuth(context)
+      return await Author.findAll()
+    },
 
-    books: async () => await Book.findAll()
+    books: async (parent:any,args:any,context:any) =>{
+      checkAuth(context)
+      return await Book.findAll()
+    },
+    
+    
+    
   },
   Author: {
     books: async (author: AuthorInstance) => {
@@ -83,7 +92,8 @@ export const resolvers = {
       }
 
     },
-    createAuthor: async (parent: any, args: any) => {
+    createAuthor: async (parent: any, args: any, context: any) => {
+      checkAuth(context)
       const { name, age } = args
       const newAuthor = await Author.create({
         name,
@@ -91,7 +101,9 @@ export const resolvers = {
       })
       return await newAuthor.save()
     },
-    updateAuthor: async (parent: any, args: any) => {
+    updateAuthor: async (parent: any, args: any, context: any) => {
+      checkAuth(context)
+
       const { id, name, age } = args
       await Author.update(
         { name, age }, { where: { id } }
@@ -100,7 +112,9 @@ export const resolvers = {
       if (!updatedAuthor) throw new Error(`No author with id: ${args.id}`)
       return updatedAuthor;
     },
-    deleteAuthor: async (parent: any, args: any) => {
+    deleteAuthor: async (parent: any, args: any, context: any) => {
+      checkAuth(context)
+
       const deletedAuthor = await Author.findByPk(args.id);
       if (!deletedAuthor) throw new Error(`No author with id: ${args.id}`)
       await Author.destroy({
@@ -119,21 +133,23 @@ export const resolvers = {
 
     },
 
-    createBook: async (parent: any, args: any) => {
+    createBook: async (parent: any, args: any, context: any) => {
+      checkAuth(context)
       const { authorId, title } = args
-
       const newBook = await Book.create({
         authorId,
         title
       })
       return newBook
     },
-    updateBook: async (parent: any, args: any) => {
+    updateBook: async (parent: any, args: any, context: any) => {
+      checkAuth(context)
       const { id, title } = args
       await Book.update({ title }, { where: { id } })
       return await Book.findByPk(id)
     },
-    deleteBook: async (parent: any, args: any) => {
+    deleteBook: async (parent: any, args: any, context: any) => {
+      checkAuth(context)
       const deletedBook = await Book.findByPk(args.id);
       if (!deletedBook) throw new Error(`No Book with id: ${args.id}`)
       await Book.destroy({
