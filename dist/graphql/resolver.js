@@ -4,14 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
+const jwt_sign_1 = require("./../utils/jwt.sign");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-require("dotenv/config");
 const author_1 = __importDefault(require("../models/author"));
 const book_1 = __importDefault(require("../models/book"));
 const user_1 = __importDefault(require("../models/user"));
 const auth_validators_1 = require("../utils/validators/auth.validators");
-const jwtSecret = process.env.JWT_SECRET;
 exports.resolvers = {
     Query: {
         authors: async () => await author_1.default.findAll(),
@@ -40,11 +38,7 @@ exports.resolvers = {
             const matched = await bcryptjs_1.default.compare(password, user.password.toString());
             if (!matched)
                 throw new Error('Invalid email or password');
-            const token = jsonwebtoken_1.default.sign({
-                id: user.id,
-                email: user.email,
-                username: user.username,
-            }, jwtSecret, { expiresIn: '1d' });
+            const token = (0, jwt_sign_1.getJwtToken)(user.id, user.email.toString(), user.username.toString());
             return {
                 id: user.id,
                 username: user.username,
@@ -68,11 +62,7 @@ exports.resolvers = {
                     username,
                     password: hashedPass,
                 });
-                const token = jsonwebtoken_1.default.sign({
-                    id: newUser.id,
-                    email: newUser.email,
-                    username: newUser.username,
-                }, jwtSecret, { expiresIn: '1d' });
+                const token = (0, jwt_sign_1.getJwtToken)(newUser.id, newUser.email.toString(), newUser.username.toString());
                 return {
                     id: newUser.id,
                     username: newUser.username,
