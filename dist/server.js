@@ -8,9 +8,13 @@ const connection_1 = require("./config/connection");
 const initApp = async () => {
     await connection_1.sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    const server = new server_1.ApolloServer({ typeDefs: schema_1.typeDefs, resolvers: resolver_1.resolvers });
+    const server = new server_1.ApolloServer({
+        typeDefs: schema_1.typeDefs,
+        resolvers: resolver_1.resolvers,
+    });
     const { url } = await (0, standalone_1.startStandaloneServer)(server, {
-        listen: { port: 4000 }
+        listen: { port: 4000 },
+        context: async ({ req }) => ({ req })
     });
     console.log(`Server running: ${url}`);
 };
