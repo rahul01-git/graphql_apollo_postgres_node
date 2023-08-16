@@ -31,10 +31,10 @@ exports.typeDefs = `#graphql
   }
 
   input RegisterInput {
-    username: String! 
-    email: String!
-    password: String!
-    confirmPassword: String!
+    username: String
+    email: String
+    password: String
+    confirmPassword: String
   }
 
   type Mutation {

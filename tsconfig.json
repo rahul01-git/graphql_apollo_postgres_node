@@ -5,6 +5,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
+    "allowJs": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "types": [
