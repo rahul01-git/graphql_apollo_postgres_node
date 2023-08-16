@@ -28,9 +28,16 @@ export const typeDefs = `#graphql
     books: [Book!]!
   }
 
+  input RegisterInput {
+    username: String
+    email: String
+    password: String
+    confirmPassword: String
+  }
+
   type Mutation {
 
-    register(username: String!, email: String!, password: String!, confirmPassword: String!) : User!
+    register(input: RegisterInput!) : User!
     login(email:String!, password: String!) : User!
 
     createAuthor(name: String!, age: Int): Author!

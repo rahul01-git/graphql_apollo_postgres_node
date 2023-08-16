@@ -10,7 +10,7 @@ require("dotenv/config");
 const author_1 = __importDefault(require("../models/author"));
 const book_1 = __importDefault(require("../models/book"));
 const user_1 = __importDefault(require("../models/user"));
-const validators_1 = require("../utils/validators");
+const auth_validators_1 = require("../utils/validators/auth.validators");
 const jwtSecret = process.env.JWT_SECRET;
 exports.resolvers = {
     Query: {
@@ -31,7 +31,7 @@ exports.resolvers = {
     Mutation: {
         login: async (parent, args) => {
             const { email, password } = args;
-            const { valid, errors } = (0, validators_1.validateLoginInput)(email, password);
+            const { valid, errors } = (0, auth_validators_1.validateLoginInput)(email, password);
             if (!valid)
                 throw new Error(...Object.values(errors));
             const user = await user_1.default.findOne({ where: { email } });
@@ -54,8 +54,8 @@ exports.resolvers = {
             };
         },
         register: async (parents, args) => {
-            const { username, email, password, confirmPassword } = args;
-            const { valid, errors } = (0, validators_1.validateRegisterInput)(username, email, password, confirmPassword);
+            const { username, email, password, confirmPassword } = args.input;
+            const { valid, errors } = (0, auth_validators_1.validateRegisterInput)(username, email, password, confirmPassword);
             if (!valid)
                 throw new Error(...Object.values(errors));
             const user = await user_1.default.findOne({ where: { email } });

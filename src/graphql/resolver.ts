@@ -1,12 +1,10 @@
+import { getJwtToken } from './../utils/jwt.sign';
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
-import 'dotenv/config'
 
 import Author, { AuthorInstance } from "../models/author"
 import Book, { BookInstance } from "../models/book"
 import User, { UserInstance } from '../models/user'
-import { validateRegisterInput, validateLoginInput } from '../utils/validators'
-const jwtSecret = process.env.JWT_SECRET
+import { validateRegisterInput, validateLoginInput } from '../utils/validators/auth.validators'
 
 
 export const resolvers = {
@@ -27,7 +25,7 @@ export const resolvers = {
     author: async (book: BookInstance) => await Author.findByPk((book as any).authorId)
   },
   Mutation: {
-    login: async (parent: any, args: any) => {
+    login: async (parent: any, args: { email: string, password: string }) => {
       const { email, password } = args
       const { valid, errors } = validateLoginInput(email, password)
 
@@ -36,15 +34,11 @@ export const resolvers = {
       const user = await User.findOne({ where: { email } })
       if (!user) throw new Error('User not Found')
 
-      const matched = await bcrypt.compare(password,user.password.toString())
+      const matched = await bcrypt.compare(password, user.password.toString())
       if (!matched) throw new Error('Invalid email or password')
 
-      const token = jwt.sign({
-        id: user.id,
-        email: user.email,
-        username: user.username,
+      const token = getJwtToken(user.id, user.email.toString(), user.username.toString())
 
-      }, jwtSecret!, { expiresIn: '1d' })
       return {
         id: user.id,
         username: user.username,
@@ -54,7 +48,7 @@ export const resolvers = {
       }
     },
     register: async (parents: any, args: any) => {
-      const { username, email, password, confirmPassword } = args
+      const { username, email, password, confirmPassword } = args.input
 
       const { valid, errors } = validateRegisterInput(username, email, password, confirmPassword)
 
@@ -73,13 +67,7 @@ export const resolvers = {
           password: hashedPass,
         })
 
-
-        const token = jwt.sign({
-          id: newUser.id,
-          email: newUser.email,
-          username: newUser.username,
-
-        }, jwtSecret!, { expiresIn: '1d' })
+        const token = getJwtToken(newUser.id, newUser.email.toString(), newUser.username.toString())
 
         return {
           id: newUser.id,
@@ -88,6 +76,7 @@ export const resolvers = {
           createdAt: newUser.createdAt,
           token
         }
+
       } catch (error) {
         console.error('Error registering user:', error);
         throw new Error('Could not register user');
