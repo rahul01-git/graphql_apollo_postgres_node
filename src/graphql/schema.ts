@@ -15,12 +15,23 @@ export const typeDefs = `#graphql
     author: Author
   }
 
+  type User {
+    id: ID!
+    username: String!
+    email: String!
+    token: String!
+    createdAt: String!
+  }
+
   type Query{
     authors: [Author!]!
     books: [Book!]!
   }
 
   type Mutation {
+
+    register(username: String!, email: String!, password: String!, confirmPassword: String!) : User!
+
     createAuthor(name: String!, age: Int): Author!
     updateAuthor(id:ID!, name:String!,age:Int) : Author!
     deleteAuthor(id:ID!) : Author !

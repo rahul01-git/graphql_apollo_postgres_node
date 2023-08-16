@@ -1,9 +1,11 @@
 import Author, { AuthorInstance } from "../models/author"
 import Book, { BookInstance } from "../models/book"
-import User from '../models/user'
+import User, { UserInstance } from '../models/user'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
+
+const jwtSecret = process.env.JWT_SECRET
 
 export const resolvers = {
   Query: {
@@ -24,32 +26,41 @@ export const resolvers = {
   },
   Mutation: {
 
-    // register: async (parent: any, { registerInput: { username, email, password, confirmPassword } }) => {
-    //   password = await bcrypt.hash(password,12)
-    //   const newUser = new User({
-    //     email,
-    //     username,
-    //     password,
-    //     createdAt: new Date().toISOString()
-    //   }) 
+    register: async (parents: any, args: any) => {
+      const { username, email, password, confirmPassword }  = args
 
-    //   const res = await newUser.save()
-    //   const token = jwt.sign({
-    //     id: res.id,
-    //     email: res.email,
-    //     username: res.username
-    //   },process.env.JWT_SECRET!,{expiresIn: '1h'})
+      if(password !== confirmPassword) throw new Error("Password and confirm password field doesn't match")
 
-    //   console.log(res)
+      try {
 
-    //   return {
-    //     newUser,
-    //     token,
-    //     id:1
-    //   }
+        const hashedPass = await bcrypt.hash(password, 12)
+        const newUser : UserInstance = await User.create({
+          email,
+          username,
+          password: hashedPass,
+        }) 
 
 
-    // },
+        const token = jwt.sign({
+          id: newUser.id ,
+          email: newUser.email,
+          username: newUser.username,
+
+        }, jwtSecret!, { expiresIn: '1d' })
+
+        return {
+          id: newUser.id,
+          username: newUser.username,
+          email: newUser.email,
+          createdAt: newUser.createdAt,
+          token
+        }
+      } catch (error) {
+        console.error('Error registering user:', error);
+        throw new Error('Could not register user');
+      }
+
+    },
     createAuthor: async (parent: any, args: any) => {
       const { name, age } = args
       const newAuthor = await Author.create({
