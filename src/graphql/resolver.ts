@@ -1,11 +1,13 @@
-import Author, { AuthorInstance } from "../models/author"
-import Book, { BookInstance } from "../models/book"
-import User, { UserInstance } from '../models/user'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
 
+import Author, { AuthorInstance } from "../models/author"
+import Book, { BookInstance } from "../models/book"
+import User, { UserInstance } from '../models/user'
+import { validateRegisterInput, validateLoginInput } from '../utils/validators'
 const jwtSecret = process.env.JWT_SECRET
+
 
 export const resolvers = {
   Query: {
@@ -25,24 +27,55 @@ export const resolvers = {
     author: async (book: BookInstance) => await Author.findByPk((book as any).authorId)
   },
   Mutation: {
+    login: async (parent: any, args: any) => {
+      const { email, password } = args
+      const { valid, errors } = validateLoginInput(email, password)
 
+      if (!valid) throw new Error(...Object.values(errors))
+
+      const user = await User.findOne({ where: { email } })
+      if (!user) throw new Error('User not Found')
+
+      const matched = await bcrypt.compare(password,user.password.toString())
+      if (!matched) throw new Error('Invalid email or password')
+
+      const token = jwt.sign({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+
+      }, jwtSecret!, { expiresIn: '1d' })
+      return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+        token
+      }
+    },
     register: async (parents: any, args: any) => {
-      const { username, email, password, confirmPassword }  = args
+      const { username, email, password, confirmPassword } = args
 
-      if(password !== confirmPassword) throw new Error("Password and confirm password field doesn't match")
+      const { valid, errors } = validateRegisterInput(username, email, password, confirmPassword)
+
+      if (!valid) throw new Error(...Object.values(errors))
+
+      const user = await User.findOne({ where: { email } })
+      if (user) throw new Error(`email already used`)
+
 
       try {
 
         const hashedPass = await bcrypt.hash(password, 12)
-        const newUser : UserInstance = await User.create({
+        const newUser: UserInstance = await User.create({
           email,
           username,
           password: hashedPass,
-        }) 
+        })
 
 
         const token = jwt.sign({
-          id: newUser.id ,
+          id: newUser.id,
           email: newUser.email,
           username: newUser.username,
 
