@@ -4,12 +4,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
-const author_1 = __importDefault(require("../models/author"));
-const book_1 = __importDefault(require("../models/book"));
-const user_1 = __importDefault(require("../models/user"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 require("dotenv/config");
+const author_1 = __importDefault(require("../models/author"));
+const book_1 = __importDefault(require("../models/book"));
+const user_1 = __importDefault(require("../models/user"));
+const validators_1 = require("../utils/validators");
 const jwtSecret = process.env.JWT_SECRET;
 exports.resolvers = {
     Query: {
@@ -28,10 +29,38 @@ exports.resolvers = {
         author: async (book) => await author_1.default.findByPk(book.authorId)
     },
     Mutation: {
+        login: async (parent, args) => {
+            const { email, password } = args;
+            const { valid, errors } = (0, validators_1.validateLoginInput)(email, password);
+            if (!valid)
+                throw new Error(...Object.values(errors));
+            const user = await user_1.default.findOne({ where: { email } });
+            if (!user)
+                throw new Error('User not Found');
+            const matched = await bcryptjs_1.default.compare(password, user.password.toString());
+            if (!matched)
+                throw new Error('Invalid email or password');
+            const token = jsonwebtoken_1.default.sign({
+                id: user.id,
+                email: user.email,
+                username: user.username,
+            }, jwtSecret, { expiresIn: '1d' });
+            return {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                createdAt: user.createdAt,
+                token
+            };
+        },
         register: async (parents, args) => {
             const { username, email, password, confirmPassword } = args;
-            if (password !== confirmPassword)
-                throw new Error("Password and confirm password field doesn't match");
+            const { valid, errors } = (0, validators_1.validateRegisterInput)(username, email, password, confirmPassword);
+            if (!valid)
+                throw new Error(...Object.values(errors));
+            const user = await user_1.default.findOne({ where: { email } });
+            if (user)
+                throw new Error(`email already used`);
             try {
                 const hashedPass = await bcryptjs_1.default.hash(password, 12);
                 const newUser = await user_1.default.create({

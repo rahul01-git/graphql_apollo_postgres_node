@@ -33,6 +33,7 @@ exports.typeDefs = `#graphql
   type Mutation {
 
     register(username: String!, email: String!, password: String!, confirmPassword: String!) : User!
+    login(email:String!, password: String!) : User!
 
     createAuthor(name: String!, age: Int): Author!
     updateAuthor(id:ID!, name:String!,age:Int) : Author!
