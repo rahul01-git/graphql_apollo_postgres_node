@@ -6,7 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 const author_1 = __importDefault(require("../models/author"));
 const book_1 = __importDefault(require("../models/book"));
+const user_1 = __importDefault(require("../models/user"));
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 require("dotenv/config");
+const jwtSecret = process.env.JWT_SECRET;
 exports.resolvers = {
     Query: {
         authors: async () => await author_1.default.findAll(),
@@ -24,27 +28,35 @@ exports.resolvers = {
         author: async (book) => await author_1.default.findByPk(book.authorId)
     },
     Mutation: {
-        // register: async (parent: any, { registerInput: { username, email, password, confirmPassword } }) => {
-        //   password = await bcrypt.hash(password,12)
-        //   const newUser = new User({
-        //     email,
-        //     username,
-        //     password,
-        //     createdAt: new Date().toISOString()
-        //   }) 
-        //   const res = await newUser.save()
-        //   const token = jwt.sign({
-        //     id: res.id,
-        //     email: res.email,
-        //     username: res.username
-        //   },process.env.JWT_SECRET!,{expiresIn: '1h'})
-        //   console.log(res)
-        //   return {
-        //     newUser,
-        //     token,
-        //     id:1
-        //   }
-        // },
+        register: async (parents, args) => {
+            const { username, email, password, confirmPassword } = args;
+            if (password !== confirmPassword)
+                throw new Error("Password and confirm password field doesn't match");
+            try {
+                const hashedPass = await bcryptjs_1.default.hash(password, 12);
+                const newUser = await user_1.default.create({
+                    email,
+                    username,
+                    password: hashedPass,
+                });
+                const token = jsonwebtoken_1.default.sign({
+                    id: newUser.id,
+                    email: newUser.email,
+                    username: newUser.username,
+                }, jwtSecret, { expiresIn: '1d' });
+                return {
+                    id: newUser.id,
+                    username: newUser.username,
+                    email: newUser.email,
+                    createdAt: newUser.createdAt,
+                    token
+                };
+            }
+            catch (error) {
+                console.error('Error registering user:', error);
+                throw new Error('Could not register user');
+            }
+        },
         createAuthor: async (parent, args) => {
             const { name, age } = args;
             const newAuthor = await author_1.default.create({
