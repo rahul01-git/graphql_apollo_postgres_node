@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize'
 import { sequelize } from '../config/connection'
-import Author from './author'
+import { BookInstance } from '../interfaces/BookInterface'
 
-const Book = sequelize.define(
+const Book = sequelize.define<BookInstance>(
   'Book',
   {
     id: {
@@ -27,11 +27,3 @@ const Book = sequelize.define(
 
 export default Book
 
-export interface BookInstance{
-  id: number
-  title: string
-  authorId: number
-  createdAt: Date
-  updatedAt: Date
-  deletedAt: Date | null
-}

@@ -1,4 +1,4 @@
-import { emailRegex } from "../regex.email"
+import { emailRegex } from "../helpers/regex.email"
 
 export const validateRegisterInput = (username: string, email: string, password: string, confirmPassword: string) => {
     const errors: { [key: string]: any } = {}

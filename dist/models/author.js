@@ -16,8 +16,8 @@ const Author = connection_1.sequelize.define('Author', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },
-    age: {
-        type: sequelize_1.DataTypes.INTEGER,
+    dob: {
+        type: sequelize_1.DataTypes.DATE,
     },
 }, {
     timestamps: true,

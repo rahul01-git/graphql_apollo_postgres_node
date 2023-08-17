@@ -4,18 +4,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
-const jwt_sign_1 = require("./../utils/jwt.sign");
+const jwt_sign_1 = require("../helpers/jwt.sign");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const author_1 = __importDefault(require("../models/author"));
 const book_1 = __importDefault(require("../models/book"));
 const user_1 = __importDefault(require("../models/user"));
-const auth_validators_1 = require("../utils/validators/auth.validators");
-const checkAuth_1 = require("../utils/checkAuth");
+const checkAuth_1 = require("../helpers/checkAuth");
+const authValidator_1 = require("../validators/authValidator");
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: "long",
+        day: "numeric"
+    });
+};
 exports.resolvers = {
     Query: {
         authors: async (parent, args, context) => {
             (0, checkAuth_1.checkAuth)(context);
-            return await author_1.default.findAll();
+            const allAuthors = await author_1.default.findAll();
+            const formattedAuthors = allAuthors.map(author => (Object.assign(Object.assign({}, author.toJSON()), { dob: formatDate(author.dob) })));
+            return formattedAuthors;
         },
         books: async (parent, args, context) => {
             (0, checkAuth_1.checkAuth)(context);
@@ -36,9 +46,11 @@ exports.resolvers = {
     Mutation: {
         login: async (parent, args) => {
             const { email, password } = args;
-            const { valid, errors } = (0, auth_validators_1.validateLoginInput)(email, password);
-            if (!valid)
-                throw new Error(...Object.values(errors));
+            const { error } = authValidator_1.loginSchema.validate(args);
+            if (error) {
+                const loginErrors = error.details.map((detail) => detail.message);
+                throw new Error(`Validation error: ${loginErrors.join(', ')}`);
+            }
             const user = await user_1.default.findOne({ where: { email } });
             if (!user)
                 throw new Error('User not Found');
@@ -56,9 +68,11 @@ exports.resolvers = {
         },
         register: async (parents, args) => {
             const { username, email, password, confirmPassword } = args.input;
-            const { valid, errors } = (0, auth_validators_1.validateRegisterInput)(username, email, password, confirmPassword);
-            if (!valid)
-                throw new Error(...Object.values(errors));
+            const { error } = authValidator_1.registerSchema.validate(args.input);
+            if (error) {
+                const registerErrors = error.details.map((detail) => detail.message);
+                throw new Error(`Validation error: ${registerErrors.join(', ')}`);
+            }
             const user = await user_1.default.findOne({ where: { email } });
             if (user)
                 throw new Error(`email already used`);
@@ -85,10 +99,10 @@ exports.resolvers = {
         },
         createAuthor: async (parent, args, context) => {
             (0, checkAuth_1.checkAuth)(context);
-            const { name, age } = args;
+            const { name, dob } = args;
             const newAuthor = await author_1.default.create({
                 name,
-                age
+                dob
             });
             return await newAuthor.save();
         },

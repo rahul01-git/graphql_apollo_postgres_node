@@ -1,26 +1,47 @@
-import { getJwtToken } from './../utils/jwt.sign';
+import { getJwtToken } from '../helpers/jwt.sign';
 import bcrypt from 'bcryptjs'
 
-import Author, { AuthorInstance } from "../models/author"
-import Book, { BookInstance } from "../models/book"
-import User, { UserInstance } from '../models/user'
-import { validateRegisterInput, validateLoginInput } from '../utils/validators/auth.validators'
-import { checkAuth } from '../utils/checkAuth'
+import Author from "../models/author"
+import Book from "../models/book"
+import User from '../models/user'
+
+import { AuthorInstance } from '../interfaces/AuthorInterface';
+import { BookInstance } from '../interfaces/BookInterface';
+import { UserInstance } from '../interfaces/UserInterface';
+
+import { checkAuth } from '../helpers/checkAuth'
+import { loginSchema, registerSchema } from '../validators/authValidator';
+
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: "long",
+    day: "numeric"
+  })
+}
 
 export const resolvers = {
   Query: {
-    authors: async (parent:any,args:any,context:any) =>{
+    authors: async (parent: any, args: any, context: any) => {
       checkAuth(context)
-      return await Author.findAll()
+
+      const allAuthors = await Author.findAll()
+      const formattedAuthors = allAuthors.map(author => ({
+        ...author.toJSON(),
+        dob: formatDate(author.dob)
+      }))
+
+      return formattedAuthors
     },
 
-    books: async (parent:any,args:any,context:any) =>{
+    books: async (parent: any, args: any, context: any) => {
       checkAuth(context)
       return await Book.findAll()
     },
-    
-    
-    
+
+
+
   },
   Author: {
     books: async (author: AuthorInstance) => {
@@ -36,9 +57,12 @@ export const resolvers = {
   Mutation: {
     login: async (parent: any, args: { email: string, password: string }) => {
       const { email, password } = args
-      const { valid, errors } = validateLoginInput(email, password)
-
-      if (!valid) throw new Error(...Object.values(errors))
+      
+      const {error} = loginSchema.validate(args)
+      if (error) {
+        const loginErrors = error.details.map((detail) => detail.message)
+        throw new Error(`Validation error: ${loginErrors.join(', ')}`)
+      }
 
       const user = await User.findOne({ where: { email } })
       if (!user) throw new Error('User not Found')
@@ -59,9 +83,12 @@ export const resolvers = {
     register: async (parents: any, args: any) => {
       const { username, email, password, confirmPassword } = args.input
 
-      const { valid, errors } = validateRegisterInput(username, email, password, confirmPassword)
+      const { error } = registerSchema.validate(args.input)
 
-      if (!valid) throw new Error(...Object.values(errors))
+      if (error) {
+        const registerErrors = error.details.map((detail) => detail.message)
+        throw new Error(`Validation error: ${registerErrors.join(', ')}`)
+      }
 
       const user = await User.findOne({ where: { email } })
       if (user) throw new Error(`email already used`)
@@ -94,10 +121,10 @@ export const resolvers = {
     },
     createAuthor: async (parent: any, args: any, context: any) => {
       checkAuth(context)
-      const { name, age } = args
+      const { name, dob } = args
       const newAuthor = await Author.create({
         name,
-        age
+        dob
       })
       return await newAuthor.save()
     },

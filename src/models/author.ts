@@ -1,8 +1,11 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/connection';
 import Book from './book';
+import { AuthorInstance } from '../interfaces/AuthorInterface';
 
-const Author = sequelize.define(
+
+
+const Author = sequelize.define<AuthorInstance>(
   'Author',
   {
     id: {
@@ -14,8 +17,8 @@ const Author = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    age: {
-      type: DataTypes.INTEGER,
+    dob: {
+      type: DataTypes.DATE,
     },
   },
   {
@@ -38,11 +41,3 @@ Book.belongsTo(Author, {
 
 export default Author;
 
-export interface AuthorInstance {
-  id: number
-  name: string
-  age: number | null
-  createdAt: Date
-  updatedAt: Date
-  deletedAt: Date | null
-}

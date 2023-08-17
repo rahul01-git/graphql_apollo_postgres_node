@@ -4,7 +4,7 @@ export const typeDefs = `#graphql
   type Author {
     id: ID!
     name: String!
-    age: Int
+    dob: String
     books: [Book]
   }
 
@@ -40,7 +40,7 @@ export const typeDefs = `#graphql
     register(input: RegisterInput!) : User!
     login(email:String!, password: String!) : User!
 
-    createAuthor(name: String!, age: Int): Author!
+    createAuthor(name: String!, dob: String): Author!
     updateAuthor(id:ID!, name:String!,age:Int) : Author!
     deleteAuthor(id:ID!) : Author !
 

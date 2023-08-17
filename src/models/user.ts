@@ -1,15 +1,6 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { sequelize } from '../config/connection';
-
-export interface UserInstance extends Model{
-    id: number;
-    username: String;
-    email: String;
-    password: String;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date | null;
-}
+import { UserInstance } from '../interfaces/UserInterface';
 
 const User = sequelize.define<UserInstance>(
     'User',
