@@ -1,9 +1,8 @@
 import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
 
-import { typeDefs } from './graphql/schema'
-import { resolvers } from './graphql/resolver'
-import { sequelize } from './config/connection'
+import { typeDefs,resolvers } from './graphql'
+import { sequelize } from './config'
 
 const initApp = async () => {
     await sequelize.authenticate();

@@ -1,6 +1,6 @@
 import { Model } from "sequelize"
 
-export interface BookInstance  extends Model{
+export interface BookInstance extends Model {
     id: number
     title: string
     authorId: number

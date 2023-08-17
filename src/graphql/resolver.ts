@@ -1,16 +1,9 @@
-import { getJwtToken } from '../helpers/jwt.sign';
 import bcrypt from 'bcryptjs'
 
-import Author from "../models/author"
-import Book from "../models/book"
-import User from '../models/user'
-
-import { AuthorInstance } from '../interfaces/AuthorInterface';
-import { BookInstance } from '../interfaces/BookInterface';
-import { UserInstance } from '../interfaces/UserInterface';
-
-import { checkAuth } from '../helpers/checkAuth'
-import { loginSchema, registerSchema } from '../validators/authValidator';
+import {Author,Book , User} from "../models"
+import { getJwtToken,checkAuth } from '../helpers';
+import { AuthorInstance,BookInstance,UserInstance } from '../interfaces';
+import { loginSchema, registerSchema } from '../validators';
 
 const formatDate = (dateString: string): string => {
   const date = new Date(dateString)

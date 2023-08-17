@@ -1,7 +1,6 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-require("dotenv/config");
-const dbConfig = {
+require('dotenv/config');
+module.exports = {
     development: {
         username: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
@@ -27,4 +26,3 @@ const dbConfig = {
         dialect: process.env.DB_DIALECT || "postgres",
     }
 };
-exports.default = dbConfig;

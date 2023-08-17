@@ -4,7 +4,7 @@ export const typeDefs = `#graphql
   type Author {
     id: ID!
     name: String!
-    dob: String
+    age: Int
     books: [Book]
   }
 

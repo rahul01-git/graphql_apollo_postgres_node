@@ -3,29 +3,30 @@ module.exports = {
     up: async (queryInterface, DataTypes) => {
         await queryInterface.createTable('Authors', {
             id: {
+                type: DataTypes.INTEGER,
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
-                type: DataTypes.INTEGER
             },
             name: {
                 type: DataTypes.STRING,
                 allowNull: false
             },
             age: {
-                type: DataTypes.INTEGER
+                type: DataTypes.INTEGER,
+                allowNull: false
             },
             createdAt: {
+                type: DataTypes.DATE,
                 allowNull: false,
-                type: DataTypes.DATE
             },
             updatedAt: {
+                type: DataTypes.DATE,
                 allowNull: false,
-                type: DataTypes.DATE
             },
             deletedAt: {
+                type: DataTypes.DATE,
                 allowNull: true,
-                type: DataTypes.DATE
             }
         });
     },

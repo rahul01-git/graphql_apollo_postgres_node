@@ -1,6 +1,6 @@
 import { Dialect, Sequelize } from 'sequelize';
 import 'dotenv/config'
-import dbConfig from './dbConfig'
+import { dbConfig } from './index';
 
 
 const { username, password, database, host, dialect, port } = dbConfig.development;

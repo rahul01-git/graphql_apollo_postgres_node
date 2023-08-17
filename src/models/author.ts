@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../config/connection';
+import { sequelize } from '../config';
 import Book from './book';
-import { AuthorInstance } from '../interfaces/AuthorInterface';
+import { AuthorInstance } from '../interfaces';
 
 
 
@@ -17,13 +17,17 @@ const Author = sequelize.define<AuthorInstance>(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    dob: {
-      type: DataTypes.DATE,
+    age: {
+      type: DataTypes.INTEGER,
     },
+    // dob: {
+    //   type: DataTypes.DATE,
+    // },
   },
   {
     timestamps: true,
     paranoid: true,
+    
   }
 );
 

@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const connection_1 = require("../config/connection");
+const config_1 = require("../config");
 const book_1 = __importDefault(require("./book"));
-const Author = connection_1.sequelize.define('Author', {
+const Author = config_1.sequelize.define('Author', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
@@ -16,9 +16,12 @@ const Author = connection_1.sequelize.define('Author', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },
-    dob: {
-        type: sequelize_1.DataTypes.DATE,
+    age: {
+        type: sequelize_1.DataTypes.INTEGER,
     },
+    // dob: {
+    //   type: DataTypes.DATE,
+    // },
 }, {
     timestamps: true,
     paranoid: true,

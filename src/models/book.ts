@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize'
-import { sequelize } from '../config/connection'
-import { BookInstance } from '../interfaces/BookInterface'
+import { sequelize } from '../config'
+import { BookInstance } from '../interfaces'
 
 const Book = sequelize.define<BookInstance>(
   'Book',
